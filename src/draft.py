@@ -1,5 +1,5 @@
-from keras.models import Sequential
-from keras.layers import Dense, Embedding, SimpleRNN, Activation, LSTM, Dropout
+from keras.models import Sequential, Model
+from keras.layers import Dense, Embedding, SimpleRNN, Activation, LSTM, Dropout, Input
 import pandas as pd
 import numpy as np
 
@@ -23,31 +23,26 @@ for i in range(0, len(drafts)):
 
 train_x = np.zeros((len(drafts), 17, len(vocab)), dtype=np.bool)
 train_y = np.zeros((len(drafts), len(vocab)), dtype=np.bool)
-for (i, draft) in enumerate(drafts.iterrows()):
+for (i, draft) in enumerate(drafts.sample(frac=1).iterrows()):
     for (t, word) in enumerate(drafts.iloc[i]):
         train_x[i, t, vocab_dict[word]] = 1
     train_y[i, vocab_dict[next_words[i]]] = 1
 
 model = Sequential()
-model.add(LSTM(32, return_sequences=False, input_shape=(17, len(vocab))))
-# model.add(SimpleRNN(32, return_sequences=False, input_shape=(32, len(vocab))))
-model.add(Dropout(0.5))
-model.add(Dense(len(vocab), activation="softmax"))
-
-model = Sequential()
-model.add(LSTM(32, return_sequences=False, input_shape=(17, len(vocab))))
+model.add(LSTM(17, input_shape=(17, len(vocab))))
 model.add(Dropout(0.2))
-model.add(LSTM(32, return_sequences=False, input_shape=(32, len(vocab))))
 model.add(Dense(len(vocab)))
 model.add(Activation('softmax'))
 
 model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
               metrics=["acc"])
 
-history = model.fit(train_x, train_y, batch_size = 10, epochs = 200)
+history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
 
 for j in range(10):
-    start_idx = np.random.randint(83, 97)
+    start_idx = np.random.randint(84, 96)
+    while start_idx == 85 or start_idx == 89 or start_idx == 90 or start_idx == 91:
+        start_idx = np.random.randint(84, 96)    
     # print(idx_dict[start_idx])
     generated = idx_dict[start_idx] + " "
     next_word = idx_dict[start_idx]
@@ -65,13 +60,21 @@ for j in range(10):
     print(generated)
 
 acc = history.history["acc"]
+val_acc = history.history["val_acc"]
 loss = history.history["loss"]
+val_loss = history.history["val_loss"]
 epochs = range(1, len(acc) + 1)
-plt.plot(epochs, acc, "b", label="Training acc")
+plt.plot(epochs, acc, "bo", label="Training acc")
+plt.plot(epochs, val_acc, "b", label="Validation acc")
 plt.title("Training accuarcy")
 plt.legend()
+ax = plt.gca()
+ax.set_yscale("log")
 plt.figure()
-plt.plot(epochs, loss, "b", label="Training loss")
+plt.plot(epochs, loss, "bo", label="Training loss")
+plt.plot(epochs, val_loss, "b", label="Validation loss")
 plt.title("Training loss")
 plt.legend()
+ax = plt.gca()
+ax.set_yscale("log")
 plt.show()
