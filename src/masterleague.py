@@ -62,6 +62,8 @@ def heroes_to_dict(heroes):
     tab = str.maketrans('', '', string.punctuation)
     df = pd.DataFrame(heroes)
     df["name"] = df["name"].str.lower().str.translate(tab).str.replace("the ","").str.replace("lost ", "").str.replace(" ", "")
+    df["name"] = df["name"].str.replace("sgthammer", "hammer")
+    df["name"] = df["name"].str.replace("ltmorales", "morales")
     df = df.set_index("id")[["name"]]
     d = dict()
     for (i,h) in df.iterrows():
@@ -103,7 +105,7 @@ for (idx, m) in maps.iterrows():
     maps_dict[m["id"]] = m["name"]
 match_to_draft(m, maps_dict, heroes_dict)
 
-matches = get_matches(100)
+matches = get_matches(2000)
 
 for match in matches:
     drafts = drafts.append(match_to_draft(match, maps_dict, heroes_dict), ignore_index=True)
