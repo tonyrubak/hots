@@ -30,6 +30,20 @@ def get_match(match_id):
     response = json.loads(masterleague_get("matches/" + str(match_id)))
     return response
 
+def get_matches(max_matches):
+    matches = []
+    total = 0
+    page = 1
+    num_matches = 1
+    while total < max_matches:
+        response = json.loads(masterleague_get("matches", options="&page=" + str(page)))
+        num_heroes = response["count"]
+        for m in response["results"]:
+            matches.append(m)        
+        total += len(response["results"])
+        page += 1
+    return matches
+
 def heroes_to_csv(heroes):
     tab = str.maketrans('', '', string.punctuation)
     df = pd.DataFrame(heroes)
@@ -57,28 +71,28 @@ def heroes_to_dict(heroes):
 def match_to_draft(match, maps, heroes):
     first = match["drafts"][0]
     second =  match["drafts"][1]
-    draft = []
+    draft = dict()
     # First Ban Phase
-    draft.append(first["bans"][0])
-    draft.append(second["bans"][0])
-    draft.append(first["bans"][1])
-    draft.append(second["bans"][1])
-    draft.append(first["picks"][0]["hero"])
-    draft.append(second["picks"][0]["hero"])
-    draft.append(second["picks"][1]["hero"])
-    draft.append(first["picks"][1]["hero"])
-    draft.append(first["picks"][2]["hero"])
+    draft["ban1"] = heroes[first["bans"][0]]
+    draft["ban2"] = heroes[second["bans"][0]]
+    draft["ban3"] = heroes[first["bans"][1]]
+    draft["ban4"] = heroes[second["bans"][1]]
+    draft["pick1"] = heroes[first["picks"][0]["hero"]]
+    draft["pick2"] = heroes[second["picks"][0]["hero"]]
+    draft["pick3"] = heroes[second["picks"][1]["hero"]]
+    draft["pick4"] = heroes[first["picks"][1]["hero"]]
+    draft["pick5"] = heroes[first["picks"][2]["hero"]]
     # Second Ban Phase
-    draft.append(second["bans"][2])
-    draft.append(first["bans"][2])
-    draft.append(second["picks"][2]["hero"])
-    draft.append(second["picks"][3]["hero"])
-    draft.append(first["picks"][3]["hero"])
-    draft.append(first["picks"][4]["hero"])
-    draft.append(second["picks"][4]["hero"])
-    m = maps[match["map"]]
-    heroes = [hero for hero in map(lambda x: heroes[x], draft)]
-    return [m, *heroes]
+    draft["ban5"] = heroes[second["bans"][2]]
+    draft["ban6"] = heroes[first["bans"][2]]
+    draft["pick6"] = heroes[second["picks"][2]["hero"]]
+    draft["pick7"] = heroes[second["picks"][3]["hero"]]
+    draft["pick8"] = heroes[first["picks"][3]["hero"]]
+    draft["pick9"] = heroes[first["picks"][4]["hero"]]
+    draft["pick10"] = heroes[second["picks"][4]["hero"]]
+    draft["map"] = maps[match["map"]]
+    return draft
+
 
 # Usage
 heroes_dict = heroes_to_dict(heroes)
@@ -89,4 +103,8 @@ for (idx, m) in maps.iterrows():
     maps_dict[m["id"]] = m["name"]
 match_to_draft(m, maps_dict, heroes_dict)
 
-mlist = [7772, 
+matches = get_matches(100)
+
+for match in matches:
+    drafts = drafts.append(match_to_draft(match, maps_dict, heroes_dict), ignore_index=True)
+
