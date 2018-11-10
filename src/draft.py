@@ -33,7 +33,7 @@ model.add(SimpleRNN(32, return_sequences=False, input_shape=(17, len(vocab))))
 model.add(Dense(len(vocab), activation="softmax"))
 
 model = Sequential()
-model.add(LSTM(16, return_sequences=True, input_shape=(16, len(vocab))))
+model.add(LSTM(32, return_sequences=False, input_shape=(17, len(vocab))))
 model.add(Dropout(0.2))
 model.add(Dense(len(vocab)))
 model.add(Activation('softmax'))
