@@ -28,16 +28,16 @@ for (i, draft) in enumerate(drafts.sample(frac=1).iterrows()):
         train_x[i, t, vocab_dict[word]] = 1
     train_y[i, vocab_dict[next_words[i]]] = 1
 
-model = Sequential()
-model.add(LSTM(17, input_shape=(17, len(vocab))))
-model.add(Dropout(0.2))
-model.add(Dense(len(vocab)))
-model.add(Activation('softmax'))
-
-model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
-              metrics=["acc"])
-
-history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
+def fit_bad_model(train_x, train_y):
+    model = Sequential()
+    model.add(LSTM(17, input_shape=(17, len(vocab))))
+    model.add(Dropout(0.2))
+    model.add(Dense(len(vocab)))
+    model.add(Activation('softmax'))
+    model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
+                  metrics=["acc"])
+    history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
+    return history
 
 for j in range(10):
     start_idx = np.random.randint(84, 96)
