@@ -9,7 +9,7 @@ def masterleague_get(request_url, options=""):
     return html
 
 def get_maps():
-    response = json.loads(masterleague_get("maps", options="&page=" + str(page)))
+    response = json.loads(masterleague_get("maps"))
     return response
 
 def get_heroes():
