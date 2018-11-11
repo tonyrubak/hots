@@ -33,22 +33,13 @@ def fit_new_model(train_x, train_y):
     train_y = train_y.reshape(-1,1,98)
     train_y = np.repeat(train_y, 17, axis=1)
     model = Sequential()
-    model.add(LSTM(17, return_sequences = True, input_shape=(17, len(vocab))))
-    model.add(TimeDistributed(Dense(98)))
-    model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
-                  metrics=["acc"])
-    history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
-    return (history, model)
-
-def fit_bad_model(train_x, train_y):
-    model = Sequential()
-    model.add(LSTM(17, input_shape=(17, len(vocab))))
+    model.add(LSTM(16, return_sequences = True, input_shape=(17, len(vocab))))
     model.add(Dropout(0.2))
-    model.add(Dense(len(vocab)))
-    model.add(Activation('softmax'))
-    model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
+    model.add(TimeDistributed(Dense(98)))
+    model.add(Activation("softmax"))
+    model.compile(optimizer="adam", loss="categorical_crossentropy",
                   metrics=["acc"])
-    history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
+    history = model.fit(train_x, train_y, batch_size = 100, epochs = 35, validation_split=0.2)
     return (history, model)
 
 def generate_draft(model):
@@ -58,18 +49,13 @@ def generate_draft(model):
     # print(idx_dict[start_idx])
     generated = idx_dict[start_idx] + " "
     next_word = idx_dict[start_idx]
-    for i in range(16):
-        x = np.zeros((1, 17, len(vocab)))
-        x[0, 0, vocab_dict[next_word]] = 1.
-        preds = model.predict(x)[0]
-        while (preds.sum() > 1):
-            preds = preds / preds.sum()
-        next_idx = np.random.multinomial(1, preds)
-        next_idx = np.argwhere(next_idx == 1)[0,0]
-        next_word = idx_dict[next_idx]
-        generated += next_word + " "
-        # print(next_word)
-    print(generated)
+    # for i in range(16):
+    x = np.zeros((1, 17, len(vocab)))
+    x[0, 0, vocab_dict[next_word]] = 1.
+    preds = model.predict(x)[0]
+    pmap = map(lambda x: np.random.multinomial(1,x), preds)
+    words = [idx_dict[np.argwhere(p == 1)[0,0]] for p in pmap]
+    return (idx_dict[start_idx], words)
 
 def plot_model(history):
     acc = history.history["acc"]
@@ -81,13 +67,13 @@ def plot_model(history):
     plt.plot(epochs, val_acc, "b", label="Validation acc")
     plt.title("Training accuarcy")
     plt.legend()
-    ax = plt.gca()
-    ax.set_yscale("log")
+    # ax = plt.gca()
+    # ax.set_yscale("log")
     plt.figure()
     plt.plot(epochs, loss, "bo", label="Training loss")
     plt.plot(epochs, val_loss, "b", label="Validation loss")
     plt.title("Training loss")
     plt.legend()
-    ax = plt.gca()
-    ax.set_yscale("log")
+    # ax = plt.gca()
+    # ax.set_yscale("log")
     plt.show()
