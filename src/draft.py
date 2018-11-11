@@ -57,8 +57,6 @@ def generate_draft(model):
         while (next_idx > 83) | (next_idx in res[:i]):
             next_idx = np.argwhere(np.random.multinomial(1, pred) == 1)[0,0]
         res.append(next_idx)
-    # pmap = map(lambda x: np.random.multinomial(1,x), preds)
-    # words = [idx_dict[np.argwhere(p == 1)[0,0]] for p in res]
     words = [idx_dict[r] for r in res]
     return (idx_dict[start_idx], words)
 
