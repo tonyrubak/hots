@@ -39,7 +39,7 @@ def fit_bad_model(train_x, train_y):
     history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
     return history
 
-for j in range(10):
+def generate_draft(model):
     start_idx = np.random.randint(84, 96)
     while start_idx == 85 or start_idx == 89 or start_idx == 90 or start_idx == 91:
         start_idx = np.random.randint(84, 96)    
