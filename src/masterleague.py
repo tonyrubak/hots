@@ -1,5 +1,5 @@
 from urllib.request import urlopen, Request
-import json
+import json, string
 
 def masterleague_get(request_url, options=""):
     apibase = "https://api.masterleague.net/"
@@ -97,16 +97,22 @@ def match_to_draft(match, maps, heroes):
 
 
 # Usage
+heroes = pd.read_csv("heroes.csv")
 heroes_dict = heroes_to_dict(heroes)
-m = get_match(7772)
-maps = pd.read_csv("maps")
+maps = pd.read_csv("maps.csv")
 maps_dict = dict()
 for (idx, m) in maps.iterrows():
     maps_dict[m["id"]] = m["name"]
-match_to_draft(m, maps_dict, heroes_dict)
 
 matches = get_matches(2000)
+error_matches = []
+
+with open("matches.json", "w") as o:
+    json.dump(matches, o)
 
 for match in matches:
-    drafts = drafts.append(match_to_draft(match, maps_dict, heroes_dict), ignore_index=True)
+    try:
+        drafts = drafts.append(match_to_draft(match, maps_dict, heroes_dict), ignore_index=True)
+    except:
+        error_matches.append(match)
 
