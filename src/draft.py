@@ -1,7 +1,8 @@
 from keras.models import Sequential, Model
-from keras.layers import Dense, Embedding, SimpleRNN, Activation, LSTM, Dropout, Input
+from keras.layers import Dense, Embedding, SimpleRNN, Activation, LSTM, Dropout, Input, TimeDistributed
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 
 max_features = 100
 
@@ -28,6 +29,17 @@ for (i, draft) in enumerate(drafts.sample(frac=1).iterrows()):
         train_x[i, t, vocab_dict[word]] = 1
     train_y[i, vocab_dict[next_words[i]]] = 1
 
+def fit_new_model(train_x, train_y):
+    train_y = train_y.reshape(-1,1,98)
+    train_y = np.repeat(train_y, 17, axis=1)
+    model = Sequential()
+    model.add(LSTM(17, return_sequences = True, input_shape=(17, len(vocab))))
+    model.add(TimeDistributed(Dense(98)))
+    model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
+                  metrics=["acc"])
+    history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
+    return (history, model)
+
 def fit_bad_model(train_x, train_y):
     model = Sequential()
     model.add(LSTM(17, input_shape=(17, len(vocab))))
@@ -37,7 +49,7 @@ def fit_bad_model(train_x, train_y):
     model.compile(optimizer="rmsprop", loss="categorical_crossentropy",
                   metrics=["acc"])
     history = model.fit(train_x, train_y, batch_size = 10, epochs = 10, validation_split=0.2)
-    return history
+    return (history, model)
 
 def generate_draft(model):
     start_idx = np.random.randint(84, 96)
