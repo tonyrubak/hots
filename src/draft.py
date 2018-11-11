@@ -71,22 +71,23 @@ def generate_draft(model):
         # print(next_word)
     print(generated)
 
-acc = history.history["acc"]
-val_acc = history.history["val_acc"]
-loss = history.history["loss"]
-val_loss = history.history["val_loss"]
-epochs = range(1, len(acc) + 1)
-plt.plot(epochs, acc, "bo", label="Training acc")
-plt.plot(epochs, val_acc, "b", label="Validation acc")
-plt.title("Training accuarcy")
-plt.legend()
-ax = plt.gca()
-ax.set_yscale("log")
-plt.figure()
-plt.plot(epochs, loss, "bo", label="Training loss")
-plt.plot(epochs, val_loss, "b", label="Validation loss")
-plt.title("Training loss")
-plt.legend()
-ax = plt.gca()
-ax.set_yscale("log")
-plt.show()
+def plot_model(history):
+    acc = history.history["acc"]
+    val_acc = history.history["val_acc"]
+    loss = history.history["loss"]
+    val_loss = history.history["val_loss"]
+    epochs = range(1, len(acc) + 1)
+    plt.plot(epochs, acc, "bo", label="Training acc")
+    plt.plot(epochs, val_acc, "b", label="Validation acc")
+    plt.title("Training accuarcy")
+    plt.legend()
+    ax = plt.gca()
+    ax.set_yscale("log")
+    plt.figure()
+    plt.plot(epochs, loss, "bo", label="Training loss")
+    plt.plot(epochs, val_loss, "b", label="Validation loss")
+    plt.title("Training loss")
+    plt.legend()
+    ax = plt.gca()
+    ax.set_yscale("log")
+    plt.show()
