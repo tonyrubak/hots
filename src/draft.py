@@ -1,5 +1,6 @@
 from keras.models import Sequential, Model
 from keras.layers import Dense, Embedding, SimpleRNN, Activation, LSTM, Dropout, Input, TimeDistributed
+from keras import regularizers
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
