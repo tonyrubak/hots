@@ -51,8 +51,15 @@ def generate_draft(model):
     x = np.zeros((1, 17, len(vocab)))
     x[0, 0, vocab_dict[next_word]] = 1.
     preds = model.predict(x)[0]
-    pmap = map(lambda x: np.random.multinomial(1,x), preds)
-    words = [idx_dict[np.argwhere(p == 1)[0,0]] for p in pmap]
+    res = []
+    for (i, pred) in enumerate(preds):
+        next_idx = 100
+        while (next_idx > 83) | (next_idx in res[:i]):
+            next_idx = np.argwhere(np.random.multinomial(1, pred) == 1)[0,0]
+        res.append(next_idx)
+    # pmap = map(lambda x: np.random.multinomial(1,x), preds)
+    # words = [idx_dict[np.argwhere(p == 1)[0,0]] for p in res]
+    words = [idx_dict[r] for r in res]
     return (idx_dict[start_idx], words)
 
 def plot_model(history):
