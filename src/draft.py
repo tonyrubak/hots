@@ -33,23 +33,21 @@ def fit_new_model(train_x, train_y):
     train_y = train_y.reshape(-1,1,98)
     train_y = np.repeat(train_y, 17, axis=1)
     model = Sequential()
-    model.add(LSTM(16, return_sequences = True, input_shape=(17, len(vocab))))
-    model.add(Dropout(0.2))
-    model.add(TimeDistributed(Dense(98)))
+    model.add(SimpleRNN(17, return_sequences = True, input_shape=(17, len(vocab))))
+    model.add(Dropout(0.5))
+    model.add(TimeDistributed(Dense(98, kernel_regularizer=regularizers.l2(0.01))))
     model.add(Activation("softmax"))
     model.compile(optimizer="adam", loss="categorical_crossentropy",
                   metrics=["acc"])
-    history = model.fit(train_x, train_y, batch_size = 100, epochs = 35, validation_split=0.2)
+    history = model.fit(train_x, train_y, batch_size = 100, epochs = 50, validation_split=0.2)
     return (history, model)
 
 def generate_draft(model):
     start_idx = np.random.randint(84, 96)
     while start_idx == 85 or start_idx == 89 or start_idx == 90 or start_idx == 91:
         start_idx = np.random.randint(84, 96)    
-    # print(idx_dict[start_idx])
     generated = idx_dict[start_idx] + " "
     next_word = idx_dict[start_idx]
-    # for i in range(16):
     x = np.zeros((1, 17, len(vocab)))
     x[0, 0, vocab_dict[next_word]] = 1.
     preds = model.predict(x)[0]
